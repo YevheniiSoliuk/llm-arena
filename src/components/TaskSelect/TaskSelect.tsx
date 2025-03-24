@@ -1,5 +1,7 @@
+import { TaskTypeEnum } from "@/constants/taskTypes";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
-import { tasks, TaskTypeEnum } from "./constants";
+import { tasks } from "./constants";
+import { useChatsStore } from "@/store/chat";
 
 type TaskSelectProps = {
   defaultValue: TaskTypeEnum;
@@ -7,8 +9,15 @@ type TaskSelectProps = {
 };
 
 const TaskSelect = ({ defaultValue, selectTask }: TaskSelectProps) => {
+  const clearChats = useChatsStore((state) => state.clearChats);
+
+  const handleTaskSelect = (value: TaskTypeEnum) => {
+    selectTask(value);
+    clearChats();
+  };
+
   return (
-    <Select defaultValue={defaultValue} onValueChange={(value) => selectTask(value as TaskTypeEnum)}>
+    <Select defaultValue={defaultValue} onValueChange={(value) => handleTaskSelect(value as TaskTypeEnum)}>
       <SelectTrigger className='h-auto w-[240px] border-border-input px-4 py-2'>
         <SelectValue placeholder='Select a task' />
       </SelectTrigger>

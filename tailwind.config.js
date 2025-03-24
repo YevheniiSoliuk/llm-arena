@@ -57,6 +57,15 @@ export default {
           hover: "hsl(var(--link-hover))",
         },
       },
+      keyframes: {
+        fadeInOut: {
+          "0%, 100%": { opacity: 0 },
+          "50%": { opacity: 1 },
+        },
+      },
+      animation: {
+        fadeInOut: "fadeInOut 1s ease-in-out infinite",
+      },
     },
   },
   // eslint-disable-next-line no-undef
