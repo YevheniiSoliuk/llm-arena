@@ -1,4 +1,4 @@
-type Sender = "user" | "model";
+export type Sender = "user" | "model";
 
 export type ChatContent = {
   sender: Sender;

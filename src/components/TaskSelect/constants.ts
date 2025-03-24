@@ -1,20 +1,11 @@
-export enum TaskTypeEnum {
-  Translate = "translation",
-  Generate = "generation",
-  Summarize = "summarization",
-}
+import { TaskTypeEnum } from "@/constants/taskTypes";
 
-export const tasks = [
-  {
-    name: "Translate",
-    value: TaskTypeEnum.Translate,
-  },
-  {
-    name: "Summarize",
-    value: TaskTypeEnum.Summarize,
-  },
-  {
-    name: "Generate",
-    value: TaskTypeEnum.Generate,
-  },
-];
+export const tasks = Object.entries(TaskTypeEnum).map(([key, value]) => {
+  const words = key.split("_");
+  const formattedPhrase = words.join(" ");
+
+  return {
+    name: formattedPhrase,
+    value,
+  };
+});

@@ -1,9 +1,21 @@
 import useGetModels from "@/hooks/useGetModels";
 import { Model } from "@/types";
-import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import {
+  AccessorKeyColumnDef,
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { TaskTypeEnum } from "@/constants/taskTypes";
+import Loading from "../common/Loading";
 
-const LeaderboardTable = () => {
+type LeaderboardTableProps = {
+  taskType?: TaskTypeEnum;
+};
+
+const LeaderboardTable = ({ taskType }: LeaderboardTableProps) => {
   const columnHelper = createColumnHelper<Model>();
   const columns = [
     columnHelper.accessor("id", {
@@ -16,11 +28,6 @@ const LeaderboardTable = () => {
       cell: (props) => props.getValue(),
       header: "Name",
     }),
-    columnHelper.accessor("totalScore", {
-      id: "score",
-      cell: (props) => props.getValue(),
-      header: "Score",
-    }),
     columnHelper.accessor("producent", {
       id: "producent",
       cell: (props) => props.getValue(),
@@ -28,7 +35,29 @@ const LeaderboardTable = () => {
     }),
   ];
 
-  const { data: models } = useGetModels();
+  if (taskType) {
+    columns.push(
+      columnHelper.accessor("scoreByTask", {
+        id: "score",
+        cell: (props) => {
+          const score = props.getValue().find((task) => task.name === TaskTypeEnum.Generate)?.score;
+
+          return score?.toString();
+        },
+        header: "Score",
+      }) as AccessorKeyColumnDef<Model, string>
+    );
+  } else {
+    columns.push(
+      columnHelper.accessor("totalScore", {
+        id: "score",
+        cell: (props) => props.getValue(),
+        header: "Score",
+      }) as AccessorKeyColumnDef<Model, string>
+    );
+  }
+
+  const { data: models, isLoading } = useGetModels(taskType ?? "general");
 
   const table = useReactTable({
     columns: columns,
@@ -37,7 +66,7 @@ const LeaderboardTable = () => {
   });
 
   return (
-    <div className='p-2'>
+    <div className='w-full p-2'>
       <Table>
         <TableHeader className='bg-primary'>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -51,15 +80,23 @@ const LeaderboardTable = () => {
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id} className='border-b-[1px] border-primary'>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className='text-center'>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
+          {!isLoading ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id} className='border-b-[1px] border-primary'>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className='text-center'>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow className='border-b-[1px] border-primary'>
+              <TableCell colSpan={4} className='text-center'>
+                <Loading styles={{ height: "400px", minHeight: "unset", width: "100%" }} />
+              </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </div>

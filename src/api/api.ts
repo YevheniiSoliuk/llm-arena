@@ -1,38 +1,34 @@
-import { getDoc, getDocs, updateDoc } from "firebase/firestore";
-import { Model } from "@/types";
-import { db } from "@/utils/db";
+import { CONFIG } from "@/config";
+import axios from "axios";
 
-export const getModelsToComparison = async () => {
-  const modelsSnapshot = await getDocs(db.models);
-  const models = [] as Model[];
+const BASE_URL = "https://api-inference.huggingface.co/models";
 
-  for (const doc of modelsSnapshot.docs) {
-    const data = doc.data();
-    models.push({
-      name: data.name,
-      producent: data.producent,
-      id: doc.id,
-      scoreByTask: data.scoreByTask,
-      totalScore: data.scoreByTask.reduce((acc, task) => {
-        return (acc += task.score);
-      }, 0),
-    });
+export const HUGGING_FASE_API = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    Authorization: `Bearer ${CONFIG.HF_API_TOKEN}`,
+    "Content-Type": "application/json",
+  },
+});
+
+HUGGING_FASE_API.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const { config } = error;
+
+    if (error.response.status === 503) {
+      try {
+        return await HUGGING_FASE_API.request({
+          ...config,
+          headers: {
+            "x-wait-for-model": "true",
+          },
+        });
+      } catch (err) {
+        return Promise.reject(err);
+      }
+    }
+
+    return Promise.reject(error);
   }
-
-  return models.sort((a, b) => b.totalScore - a.totalScore);
-};
-
-export const updateModelScore = async (modelId: string, score: number, taskIndex: number) => {
-  const model = await getDoc(db.model(modelId));
-  const modelData = model.data();
-
-  if (!modelData) {
-    return;
-  }
-  console.log(modelData.scoreByTask[taskIndex].score);
-  modelData.scoreByTask[taskIndex].score = score;
-  console.log(score);
-  await updateDoc(db.model(modelId), {
-    scoreByTask: modelData.scoreByTask,
-  });
-};
+);
