@@ -1,33 +1,28 @@
-import { generate, generateStream, questionAnswering, summarize, textClassification, tokenClassification, zeroShotClassification } from "@/api/hugging-face";
+import { generate, questionAnswering, summarize, textClassification, tokenClassification, zeroShotClassification } from "@/api/hugging-face";
+import { sentimentAnalysisResponseLabels } from "@/constants/models";
 import { TaskTypeEnum } from "@/constants/taskTypes";
 import { useChatsStore } from "@/store/chat";
+import { formatEntitiesInText } from "@/utils/formatEntities";
 import { showNotification } from "@/utils/showNotification";
-
-const sentimentAnalysisResponseLabels = {
-  ["ENTAILMENT"]: "positive",
-  ["NEUTRAL"]: "neutral",
-  ["CONTRADICTION"]: "negative",
-  ["LABEL_0"]: "negative",
-  ["LABEL_1"]: "positive",
-  ["LABEL_2"]: "neutral",
-};
 
 export const useStreamTextGeneration = () => {
   const addMessage = useChatsStore((state) => state.addMessage);
 
   async function streamTextGeneration(taskType: TaskTypeEnum, input: string, model: string, chatType: 1 | 2, context?: string) {
-    console.log(taskType);
     try {
       switch (taskType) {
-        case TaskTypeEnum.Generate: {
-          const stream = await generateStream(model, input);
+        case TaskTypeEnum.Generation: {
+          const stream = await generate(model, input);
 
-          for await (const r of stream) {
-            addMessage(r.token.text, "model", chatType, r.index === 1);
+          if ("summary_text" in stream) {
+            addMessage(stream.summary_text as string, "model", chatType);
+          } else {
+            addMessage(stream.generated_text, "model", chatType);
           }
+
           break;
         }
-        case TaskTypeEnum.Paraphrase: {
+        case TaskTypeEnum.Sentiment_Analysis: {
           if (model.includes("t5")) {
             const result = await generate(model, input);
             addMessage(result.generated_text, "model", chatType);
@@ -46,16 +41,15 @@ export const useStreamTextGeneration = () => {
           }
           break;
         }
-        case TaskTypeEnum.Complete: {
+        case TaskTypeEnum.Named_Entity_Recognition: {
           const result = await tokenClassification(model, input);
-          console.log(result);
-          for (const r of result) {
-            addMessage(r.entity_group, "model", chatType);
-          }
+          const formattedMessage = formatEntitiesInText(input, result);
+
+          addMessage(formattedMessage, "model", chatType);
 
           break;
         }
-        case TaskTypeEnum.Translate: {
+        case TaskTypeEnum.Summarization: {
           const result = await summarize(model, input);
 
           addMessage(result.summary_text, "model", chatType);
@@ -69,11 +63,11 @@ export const useStreamTextGeneration = () => {
           break;
         }
         default:
-          console.error("Not supported task type!");
+          showNotification("bad-task-type", `Error: Not supported task type!`, "error");
           break;
       }
     } catch (error) {
-      showNotification("model-response-error", "Error: Failed to get proper response from model", "error");
+      showNotification("model-response-error", `Error: ${error}`, "error");
     }
   }
 

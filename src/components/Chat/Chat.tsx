@@ -17,7 +17,7 @@ const Chat = ({ name, chatContent }: ChatProps) => {
   return (
     <div className='w-full'>
       <div className='relative'>
-        <div className='absolute left-0 top-0 z-10 rounded-ee-lg rounded-ss-lg border-[1px] border-primary bg-background px-4 py-3 text-xs text-primary'>
+        <div className='absolute left-0 top-0 z-10 rounded-ee-lg rounded-ss-lg border-[1px] border-primary shadow-[2px_2px_15px_rgba(0,0,0,0.5)] bg-background px-4 py-3 text-xs text-primary'>
           <span>
             {namePart1}
             {namePart2 ? ": " : ""}

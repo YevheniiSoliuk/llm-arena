@@ -6,8 +6,13 @@ import { TaskTypeEnum } from "@/constants/taskTypes";
 import useTask from "@/hooks/useTask";
 import { useChatsStore } from "@/store/chat";
 import { useQueryClient } from "@tanstack/react-query";
+import { UseFormReturn } from "react-hook-form";
 
 type ActionButtonsProps = {
+  form: UseFormReturn<{
+    message: string;
+    context?: string | undefined;
+  }, unknown, undefined>;
   models: ModelWithType[];
   selectedTask: TaskTypeEnum;
   decision: Decision | null;
@@ -17,6 +22,7 @@ type ActionButtonsProps = {
 };
 
 const ActionButtons = ({
+  form,
   models,
   selectedTask,
   decision,
@@ -64,7 +70,7 @@ const ActionButtons = ({
       action: () => {
         vote();
         setIsVoted(false);
-
+        form.reset();
         clearChats();
         queryClient.invalidateQueries({
           queryKey: ["models"],

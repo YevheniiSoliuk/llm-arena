@@ -1,61 +1,29 @@
-import { Model, ScoreByTask } from "@/types";
+import { baseModels, modelsByTaskType } from "@/constants/models";
+import { TaskTypeEnum } from "@/constants/taskTypes";
 import { db } from "@/utils/db";
+import { getDocs } from "firebase/firestore";
 
-const qaModels = [
-  {
-    name: "google-bert/bert-large-uncased-whole-word-masking-finetuned-squad",
-    producent: "Google",
-  },
-  {
-    name: "sjrhuschlee/flan-t5-base-squad2",
-    producent: "Google",
-  },
-  {
-    name: "deepset/roberta-large-squad2",
-    producent: "Microsoft",
-  },
-  {
-    name: "phiyodr/bart-large-finetuned-squad2",
-    producent: "Facebook",
-  },
-  {
-    name: "ahotrod/electra_large_discriminator_squad2_512",
-    producent: "Google",
-  },
-  {
-    name: "ggoggam/xlnet-base-squadv2",
-    producent: "Xlnet",
-  },
-] as Partial<Model>[];
-
-const taskScores = [
-  {
-    name: "completion",
-    score: 0,
-  },
-  {
-    name: "generation",
-    score: 0,
-  },
-  {
-    name: "translation",
-    score: 0,
-  },
-  {
-    name: "question-answering",
-    score: 0,
-  },
-  {
-    name: "paraphrasing",
-    score: 0,
-  },
-] as ScoreByTask[];
+export const addBaseModelsToDb = async () => {
+  for (const baseModel of baseModels) {
+    await db.create_base_model(baseModel);
+  }
+}
 
 export const addModelsToDb = async () => {
-  for (const model of qaModels) {
-    await db.create_model({
-      ...model,
-      scoreByTask: taskScores,
-    });
+  const baseModels = await getDocs(db.base_models);
+
+  for (const taskType of Object.values(TaskTypeEnum)) {
+    const models = modelsByTaskType[taskType];
+
+    for (const model of models) {
+      const baseModel = baseModels.docs.find((baseModel) => model.name?.includes(baseModel.data().name));
+      const modelOptions = { ...model };
+
+      if (baseModel && baseModel.id) {
+        modelOptions.baseModel = baseModel.id;
+      }
+
+      await db.create_model(modelOptions);
+    }
   }
 }

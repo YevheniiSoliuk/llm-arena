@@ -1,6 +1,7 @@
-// import { useTypingSimulating } from "@/hooks/useTypingSimulating";
+import { useEffect, useRef } from "react";
+import DOMPurify from 'dompurify';
+import { convertMarkdownEntitiesToHTML } from "@/utils/convertMarkdownEntitiesToHTML";
 import { Sender } from "../types";
-import { useMemo } from "react";
 
 type MessageProps = {
   sender: Sender;
@@ -8,32 +9,47 @@ type MessageProps = {
 };
 
 const Message = ({ content, sender }: MessageProps) => {
-  //const displayedText = useTypingSimulating(content);
+  const msgRef = useRef<HTMLParagraphElement | null>(null);
+  const isNerTaskContent = content.includes("NER:");
+  const isLoadingContent = content.includes("loading");
 
-  const message = useMemo(() => {
+  const sanitizeHTML = (html: string) => {
+    return DOMPurify.sanitize(html);
+  }
+
+  useEffect(() => {
+    if (!msgRef.current) return;
+
     if (sender === "user") {
-      return <p className={"text-start"}>{content}</p>;
+      msgRef.current.innerHTML = sanitizeHTML(content);
+      return;
     }
 
-    // if (content.length !== content?.length - 1) {
-    //   return (
-    //     <>
-    //       <span className={"inline-block text-justify"}>
-    //         {content}
-    //         <span className={"inline-block h-4 w-2 animate-fadeInOut bg-foreground"}></span>
-    //       </span>
-    //     </>
-    //   );
-    // }
+    if (isLoadingContent) {
+      return;
+    }
 
-    return <p className={"text-start"}>{content}</p>;
-  }, [sender, content]);
+    if (isNerTaskContent) {
+      const formattedParagraph = convertMarkdownEntitiesToHTML(content.split("NER:")[1]);
+
+      msgRef.current.innerHTML = sanitizeHTML(formattedParagraph);
+      return;
+    }
+
+    msgRef.current.innerHTML = sanitizeHTML(content);
+  }, [sender, content, isNerTaskContent, isLoadingContent]);
 
   return (
     <div
       className={`my-2 max-w-[70%] rounded-xl ${sender === "user" ? "rounded-ee-none" : "rounded-es-none"} bg-background px-3 py-2 text-primary`}
     >
-      {message}
+      <p ref={msgRef} className={`text-start text-base/7`}>
+        {isLoadingContent && (
+          <span className='inline-block text-justify'>
+            <span className='inline-block h-4 w-2 animate-fadeInOut bg-foreground'></span>
+          </span>
+        )}
+      </p>
     </div>
   );
 };

@@ -12,10 +12,6 @@ const Header = () => {
   const { isAuthenticated, isLoading } = useAuth0();
 
   const authenticationButton = useMemo(() => {
-    if (isLoading) {
-      return <Skeleton className='h-[45px] w-[250px] rounded-xl' />;
-    }
-
     if (isAuthenticated) {
       return (
         <>
@@ -27,8 +23,14 @@ const Header = () => {
             </NavigationMenuList>
           </NavigationMenu>
           <div className='flex w-full items-center justify-end gap-4'>
-            <Profile />
-            <LogoutButton />
+            {isLoading ? (
+              <Skeleton className='h-[45px] w-[250px] rounded-xl' />
+            ) : (
+              <>
+                <Profile />
+                <LogoutButton />
+              </>
+            )}
           </div>
         </>
       );
@@ -41,7 +43,11 @@ const Header = () => {
             </NavigationMenuList>
           </NavigationMenu>
           <div className='flex w-full items-center justify-end gap-4'>
-            <LoginButton />
+            {isLoading ? (
+              <Skeleton className='h-[45px] w-[250px] rounded-xl' />
+            ) : (
+              <LoginButton />
+            )}
           </div>
         </>
       );

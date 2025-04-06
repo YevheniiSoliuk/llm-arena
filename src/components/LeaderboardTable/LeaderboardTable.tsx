@@ -1,5 +1,5 @@
 import useGetModels from "@/hooks/useGetModels";
-import { Model } from "@/types";
+import { BaseModel, Model } from "@/types";
 import {
   AccessorKeyColumnDef,
   createColumnHelper,
@@ -16,44 +16,50 @@ type LeaderboardTableProps = {
 };
 
 const LeaderboardTable = ({ taskType }: LeaderboardTableProps) => {
-  const columnHelper = createColumnHelper<Model>();
+  const columnHelper = createColumnHelper<Model | BaseModel>();
   const columns = [
     columnHelper.accessor("id", {
       id: "id",
       cell: (props) => props.row.index + 1,
       header: "#",
     }),
-    columnHelper.accessor("name", {
-      id: "name",
-      cell: (props) => props.getValue(),
-      header: "Name",
-    }),
-    columnHelper.accessor("producent", {
-      id: "producent",
-      cell: (props) => props.getValue(),
-      header: "Producent",
-    }),
   ];
 
   if (taskType) {
     columns.push(
-      columnHelper.accessor("scoreByTask", {
+      columnHelper.accessor("name", {
+        id: "name",
+        cell: (props) => props.getValue(),
+        header: "Name",
+      }),
+      columnHelper.accessor("producent", {
+        id: "producent",
+        cell: (props) => props.getValue(),
+        header: "Producent",
+      }),
+      columnHelper.accessor("score", {
         id: "score",
-        cell: (props) => {
-          const score = props.getValue().find((task) => task.name === TaskTypeEnum.Generate)?.score;
-
-          return score?.toString();
-        },
+        cell: (props) => props.getValue() ?? 0,
         header: "Score",
-      }) as AccessorKeyColumnDef<Model, string>
+      }) as AccessorKeyColumnDef<Model | BaseModel, string>
     );
   } else {
     columns.push(
-      columnHelper.accessor("totalScore", {
-        id: "score",
+      columnHelper.accessor("name", {
+        id: "name",
         cell: (props) => props.getValue(),
+        header: "Name",
+      }),
+      columnHelper.accessor("producent", {
+        id: "producent",
+        cell: (props) => props.getValue(),
+        header: "Producent",
+      }),
+      columnHelper.accessor("totalScore", {
+        id: "totalScore",
+        cell: (props) => props.getValue() ?? 0,
         header: "Score",
-      }) as AccessorKeyColumnDef<Model, string>
+      }) as AccessorKeyColumnDef<Model | BaseModel, string>
     );
   }
 
@@ -61,7 +67,7 @@ const LeaderboardTable = ({ taskType }: LeaderboardTableProps) => {
 
   const table = useReactTable({
     columns: columns,
-    data: models ?? [],
+    data: models as Model[] ?? [],
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -84,7 +90,7 @@ const LeaderboardTable = ({ taskType }: LeaderboardTableProps) => {
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} className='border-b-[1px] border-primary'>
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className='text-center'>
+                  <TableCell key={cell.id} className={`${taskType ? 'text-center' : 'text-center capitalize'}`}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

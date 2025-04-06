@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 const useGetModels = (taskType: TaskTypeEnum | "general", random: boolean = false) => {
   return useQuery({
-    queryKey: ["models"],
+    queryKey: ["models", taskType],
     queryFn: async () => {
       const models = await getModelsToComparison(taskType, random);
 

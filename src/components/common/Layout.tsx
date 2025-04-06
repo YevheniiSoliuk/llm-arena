@@ -6,9 +6,9 @@ const Layout = () => {
   return (
     <>
       <AuthErrorHandler />
-      <div className='w-full dark:bg-background'>
+      <div className='w-full h-screen dark:bg-background'>
         <Header />
-        <div className='w-full pt-10'>
+        <div className='w-full min-h-screen pt-[60px]'>
           <Outlet />
         </div>
       </div>
