@@ -11,8 +11,8 @@ export const getModelsToComparison = async (taskType: TaskTypeEnum | "general", 
 
     for (const doc of baseModelsSnapshot.docs) {
       const data = doc.data();
-      const models = await getDocs(db.models_by_base_model(doc.id));
-      const totalScore = models.docs.reduce((acc, doc) => {
+      const modelsByBaseModel = await getDocs(db.models_by_base_model(doc.id));
+      const totalScore = modelsByBaseModel.docs.reduce((acc, doc) => {
         acc += doc.data().score ?? 0;
         return acc;
       }, 0);

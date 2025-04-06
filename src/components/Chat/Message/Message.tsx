@@ -1,6 +1,7 @@
+import { useEffect, useRef } from "react";
+import DOMPurify from 'dompurify';
 import { convertMarkdownEntitiesToHTML } from "@/utils/convertMarkdownEntitiesToHTML";
 import { Sender } from "../types";
-import { useEffect, useRef } from "react";
 
 type MessageProps = {
   sender: Sender;
@@ -12,11 +13,15 @@ const Message = ({ content, sender }: MessageProps) => {
   const isNerTaskContent = content.includes("NER:");
   const isLoadingContent = content.includes("loading");
 
+  const sanitizeHTML = (html: string) => {
+    return DOMPurify.sanitize(html);
+  }
+
   useEffect(() => {
     if (!msgRef.current) return;
 
     if (sender === "user") {
-      msgRef.current.innerHTML = content;
+      msgRef.current.innerHTML = sanitizeHTML(content);
       return;
     }
 
@@ -27,11 +32,11 @@ const Message = ({ content, sender }: MessageProps) => {
     if (isNerTaskContent) {
       const formattedParagraph = convertMarkdownEntitiesToHTML(content.split("NER:")[1]);
 
-      msgRef.current.innerHTML = formattedParagraph;
+      msgRef.current.innerHTML = sanitizeHTML(formattedParagraph);
       return;
     }
 
-    msgRef.current.innerHTML = content;
+    msgRef.current.innerHTML = sanitizeHTML(content);
   }, [sender, content, isNerTaskContent, isLoadingContent]);
 
   return (
