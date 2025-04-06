@@ -1,18 +1,14 @@
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import Router from "./Router";
-import { AppState, Auth0Provider, User } from "@auth0/auth0-react";
+import { AppState, Auth0Provider } from "@auth0/auth0-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Loading from "./components/common/Loading";
 import { CONFIG } from "./config";
 import { ToastContainer } from "react-toastify";
-import { addModelsToDb } from "./utils/addModelsToDb";
 
 const queryClient = new QueryClient();
 
 function App() {
-  // useEffect(() => {
-  //   addModelsToDb();
-  // }, []);
   return (
     <Auth0Provider
       domain={CONFIG.AUTH0_DOMAIN}
@@ -20,9 +16,7 @@ function App() {
       authorizationParams={{
         redirect_uri: window.location.origin,
       }}
-      onRedirectCallback={(appState?: AppState, user?: User) => {
-        console.log(user);
-        console.log(appState);
+      onRedirectCallback={(appState?: AppState) => {
         window.history.replaceState(
           {},
           document.title,

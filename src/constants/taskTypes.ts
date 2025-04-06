@@ -1,15 +1,15 @@
 export enum TaskTypeEnum {
-  Paraphrase = "paraphrasing",
-  Generate = "generation",
-  Complete = "completion",
-  Translate = "translation",
+  Sentiment_Analysis = "sentiment-analysis",
   Question_Answering = "question-answering",
+  Named_Entity_Recognition = "named-entity-recognition",
+  Summarization = "summarization",
+  Generation = "generation",
 }
 
 export const inputByTaskType = {
-  [TaskTypeEnum.Complete]: "complete",
-  [TaskTypeEnum.Generate]: "generate",
-  [TaskTypeEnum.Paraphrase]: "paraphrase",
+  [TaskTypeEnum.Sentiment_Analysis]: "analyse sentiment",
   [TaskTypeEnum.Question_Answering]: "answer the question",
-  [TaskTypeEnum.Translate]: "translate",
+  [TaskTypeEnum.Named_Entity_Recognition]: "recognize named entity",
+  [TaskTypeEnum.Summarization]: "summarize",
+  [TaskTypeEnum.Generation]: "generate",
 };

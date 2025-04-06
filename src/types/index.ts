@@ -1,11 +1,28 @@
 import { TaskTypeEnum } from "@/constants/taskTypes";
 
+export type BaseModel = {
+  id: string;
+  name: string;
+  producent: string;
+  totalScore: number;
+}
+
+export type ModelDto = {
+  id: string;
+  name: string;
+  producent: string;
+  taskType: TaskTypeEnum;
+  score: number;
+  baseModel: string;
+}
+
 export type Model = {
   id: string;
   name: string;
   producent: string;
-  scoreByTask: ScoreByTask[];
-  totalScore: number;
+  taskType: TaskTypeEnum;
+  score: number;
+  baseModel: BaseModel;
 };
 
 export type ScoreByTask = {
@@ -32,4 +49,88 @@ export type Decision = "model_a" | "model_b" | "tie" | "both_bad";
 export type ModelWithType = {
   model: Model;
   type: "model_a" | "model_b";
+};
+
+export type GenerationDefaultResponse = {
+  details: {
+    best_of_sequences: {
+      finish_reason: "length" | "eos_token" | "stop_sequence";
+      generated_text: string;
+      generated_tokens: number;
+      prefill: {
+        id: number;
+        logprob: number;
+        text: string;
+      }[];
+      seed: number;
+      tokens: {
+        id: number;
+        logprob: number;
+        special: boolean;
+        text: string;
+      }[];
+      top_tokens: {
+        id: number;
+        logprob: number;
+        special: boolean;
+        text: string;
+      }[];
+    };
+    finish_reason: "length" | "eos_token" | "stop_sequence";
+    generated_tokens: number;
+    prefill: {
+      id: number;
+      logprob: number;
+      text: string;
+    }[];
+    seed: number;
+    tokens: {
+      id: number;
+      logprob: number;
+      special: boolean;
+      text: string;
+    }[];
+    top_tokens: {
+      id: number;
+      logprob: number;
+      special: boolean;
+      text: string;
+    }[];
+  };
+  generated_text: string;
+};
+
+export type GenerationStreamResponse = {
+  details: {
+    finish_reason: "length" | "eos_token" | "stop_sequence";
+    generated_tokens: number;
+    input_length: number;
+    seed: number;
+  };
+  generated_text: string;
+  index: number;
+  token: {
+    id: number;
+    logprob: number;
+    special: boolean;
+    text: string;
+  };
+  top_tokens: {
+    id: number;
+    logprob: number;
+    special: boolean;
+    text: string;
+  };
+};
+
+export type Content = {
+  context?: string;
+  message: string;
+}
+
+export type TaskExample = {
+  id: string;
+  name: string;
+  taskType: TaskTypeEnum;
+  content: Content;
 };

@@ -1,76 +1,70 @@
+import { useEffect, useState } from "react";
 import { SendHorizontalIcon } from "lucide-react";
-import { Button } from "../ui/button";
-import { Form, FormField, FormItem, FormControl, FormMessage } from "../ui/form";
-import { Input } from "../ui/input";
+import { UseFormReturn } from "react-hook-form";
 import useTask from "@/hooks/useTask";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Form, FormField, FormItem, FormControl, FormMessage } from "../ui/form";
+import { useChatsStore } from "@/store/chat";
+import { useTaskExamplesStore } from "@/store/examples";
 import { Model } from "@/types";
 import { TaskTypeEnum } from "../../constants/taskTypes";
-import { useChatsStore } from "@/store/chat";
 import { showNotification } from "@/utils/showNotification";
-import { Textarea } from "../ui/textarea";
-
-const formSchema = (selectedTask: TaskTypeEnum) => z.object({
-  context: z.string().min(10, {
-    message: "Context must be at least 10 characters.",
-  }).optional(),
-  message: z.string().min(10, {
-    message: "Message must be at least 10 characters.",
-  }),
-}).refine((data) => {
-  if (selectedTask === TaskTypeEnum.Question_Answering) {
-    return data.context !== undefined && data.context.trim() !== "";
-  }
-  return true;
-}, {
-  message: "Context is required",
-  path: ["context"],
-})
+import { FormType } from "./config";
 
 type SendMessageFormProps = {
+  form: UseFormReturn<{
+    message: string;
+    context?: string | undefined;
+  }, unknown, undefined>;
   models: Model[];
   selectedTask: TaskTypeEnum;
+  selectedExample?: string;
   isVoted: boolean;
 };
 
-type FormType = z.infer<ReturnType<typeof formSchema>>;
+type ChatType = 1 | 2;
 
-const SendMessageForm = ({ models, selectedTask, isVoted }: SendMessageFormProps) => {
+const SendMessageForm = ({ form, models, selectedTask, selectedExample, isVoted }: SendMessageFormProps) => {
+  const [isLoading, setIsLoading] = useState(false);
   const { getModelAnswer, isFetching } = useTask();
   const addMessage = useChatsStore((state) => state.addMessage);
+  const example = useTaskExamplesStore((state) => state.getExampleById(selectedExample));
 
-  const form = useForm<FormType>({
-    resolver: zodResolver(formSchema(selectedTask)),
-    defaultValues: {
-      message: "",
-    },
-  });
+  useEffect(() => {
+    if (!example) return;
+
+    setTimeout(() => {
+      if (example.content.context) {
+        form.setValue("context", example.content.context);
+      }
+
+      form.setValue("message", example.content.message);
+    }, 0)
+  }, [example]);
 
   const onSubmit = async (values: FormType) => {
-    console.log('Form values:', values);
-    console.log('Selected models:', models);
-
-    models.forEach((model, index) => {
-      const chatType = (index + 1) as 1 | 2;
+    models.forEach((_, index) => {
+      const chatType = (index + 1) as ChatType;
       addMessage(values.message, "user", chatType, true);
     });
 
-    const modelPromises = models.map(async (model, index) => {
-      const chatType = (index + 1) as 1 | 2;
+    try {
+      setIsLoading(true);
 
-      try {
-        addMessage("", "user", chatType, true);
+      const modelPromises = models.map(async (model, index) => {
+        const chatType = (index + 1) as ChatType;
+        addMessage("loading", "model", chatType, true);
         await getModelAnswer(model, selectedTask, values.message, chatType, values.context);
-      } catch (error) {
-        showNotification("submission-error", "Failed to get response from model", "error");
-      }
-    });
+      });
 
-    await Promise.allSettled(modelPromises);
-
-    form.reset();
+      await Promise.allSettled(modelPromises);
+    } catch (error) {
+      showNotification("submission-error", "Failed to get response from model", "error");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -80,6 +74,7 @@ const SendMessageForm = ({ models, selectedTask, isVoted }: SendMessageFormProps
           <FormField
             control={form.control}
             name="context"
+            disabled={isVoted || isFetching || isLoading}
             render={({ field }) => (
               <FormItem>
                 <FormControl>
@@ -97,13 +92,13 @@ const SendMessageForm = ({ models, selectedTask, isVoted }: SendMessageFormProps
         <FormField
           control={form.control}
           name='message'
-          disabled={isVoted || isFetching}
+          disabled={isVoted || isFetching || isLoading}
           render={({ field }) => (
             <FormItem className='w-full'>
               <FormControl>
                 <div className='flex items-center gap-8'>
                   <Input className='border-border-input' placeholder='Type your question here!' {...field} />
-                  <Button type='submit' disabled={isVoted || isFetching}>
+                  <Button type='submit' disabled={isVoted || isFetching || isLoading}>
                     <SendHorizontalIcon />
                   </Button>
                 </div>

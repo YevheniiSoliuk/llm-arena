@@ -47,7 +47,7 @@ export const useChatsStore = create<IChatStore>((set) => ({
 
             updatedChatContent[lastMessageIndex] = {
               ...updatedChatContent[lastMessageIndex],
-              message: updatedChatContent[lastMessageIndex].message + message,
+              message: message,
             };
 
             return {
@@ -79,7 +79,7 @@ export const useChatsStore = create<IChatStore>((set) => ({
 
             updatedChatContent[lastMessageIndex] = {
               ...updatedChatContent[lastMessageIndex],
-              message: updatedChatContent[lastMessageIndex].message + message,
+              message: message,
             };
 
             return {
