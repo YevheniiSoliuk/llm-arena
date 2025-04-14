@@ -12,7 +12,7 @@ export const Profile = () => {
     isAuthenticated && (
       <div className='flex items-center gap-2'>
         <img className='h-8 w-8 rounded-full' src={user?.picture} alt={user?.name} />
-        <h2 className='text-md font-medium'>{user?.name}</h2>
+        <h2 className='hidden text-md font-medium sm:block'>{user?.name}</h2>
       </div>
     )
   );

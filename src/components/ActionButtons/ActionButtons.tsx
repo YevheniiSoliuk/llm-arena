@@ -80,9 +80,9 @@ const ActionButtons = ({
   ];
 
   return (
-    <div className='my-2 flex items-center justify-start gap-4'>
+    <div className='my-2 flex flex-wrap sm:flex-nowrap items-center justify-start gap-4'>
       {buttons.map((button) => (
-        <Button key={button.name} className='w-full py-5' onClick={button.action}>
+        <Button key={button.name} className='w-[47%] sm:w-full py-5' onClick={button.action}>
           {button.icon} {button.label}
         </Button>
       ))}

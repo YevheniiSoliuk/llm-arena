@@ -55,11 +55,11 @@ const Compare = () => {
 
   return (
     <div className='w-full px-4 py-2'>
-      <div className='my-4 flex w-full items-center justify-center gap-4'>
+      <div className='w-full my-4 flex flex-wrap items-center justify-center gap-4'>
         <TaskSelect defaultValue={selectedTask} selectTask={handleTaskSelection} />
         <TaskExamplesSelect selectedExample={selectedExampleId} selectExample={setSelectedExampleId} taskType={selectedTask} />
       </div>
-      <div className='flex min-w-full items-center gap-4'>
+      <div className='flex flex-wrap sm:flex-nowrap min-w-full h-full sm:max-xl:h-[63dvh] items-center gap-4'>
         <Chat name={isVoted ? `Model A: ${models[0].name}` : "Model A"} chatContent={chat1Content} />
         <Chat name={isVoted ? `Model B: ${models[1].name}` : "Model B"} chatContent={chat2Content} />
       </div>
