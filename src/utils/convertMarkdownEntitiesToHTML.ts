@@ -25,7 +25,7 @@ export function convertMarkdownEntitiesToHTML(text: string) {
 
   const entityRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
 
-  const htmlText = text.replace(entityRegex, (match, entityText: string, entityType: string) => {
+  const htmlText = text.replace(entityRegex, (_, entityText: string, entityType: string) => {
     const color = entityColors[entityType as keyof typeof entityColors] || '#b4b435'; // Default yellow if type not found
     const entityTypeColor = entityTypeColors[entityType as keyof typeof entityTypeColors] || '#b4b435'; // Default yellow if type not found
     return `

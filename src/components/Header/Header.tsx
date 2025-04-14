@@ -15,7 +15,7 @@ const Header = () => {
     if (isAuthenticated) {
       return (
         <>
-          <NavigationMenu className='min-w-[30%]'>
+          <NavigationMenu className='min-w-[30%] hidden sm:block'>
             <NavigationMenuList className='gap-4'>
               {links.map((link) => (
                 <NavigationItem key={link.to} link={link} />
@@ -37,7 +37,7 @@ const Header = () => {
     } else {
       return (
         <>
-          <NavigationMenu className='min-w-[30%]'>
+          <NavigationMenu className='min-w-[30%] hidden sm:block'>
             <NavigationMenuList className='gap-4'>
               <NavigationItem link={{ text: "Leaderboard", to: "/" }} />
             </NavigationMenuList>
