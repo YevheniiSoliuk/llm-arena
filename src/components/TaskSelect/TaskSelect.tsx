@@ -18,10 +18,10 @@ const TaskSelect = ({ defaultValue, selectTask }: TaskSelectProps) => {
 
   return (
     <Select defaultValue={defaultValue} onValueChange={(value) => handleTaskSelect(value as TaskTypeEnum)}>
-      <SelectTrigger className='h-auto w-[240px] border-border-input px-4 py-2'>
+      <SelectTrigger className='h-auto w-full sm:w-[240px] border-border-input px-4 py-2'>
         <SelectValue placeholder='Select a task' />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className='min-w-full w-full sm:w-[240px]'>
         <SelectGroup>
           <SelectLabel>Tasks</SelectLabel>
           {tasks.map((task) => (
