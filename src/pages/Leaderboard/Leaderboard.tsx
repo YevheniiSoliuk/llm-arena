@@ -19,7 +19,7 @@ const Leaderboard = () => {
   return (
     <div className='mt-16 w-full px-4'>
       <Tabs defaultValue={tabs[0].value} className='flex w-full flex-col items-start'>
-        <TabsList className='justify-start gap-2'>
+        <TabsList className='justify-start gap-2 overflow-x-auto overflow-y-clip max-w-full scrollbar-hide'>
           {tabs.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value}>
               {tab.label}

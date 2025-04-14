@@ -20,7 +20,7 @@ export const TaskExamplesSelect = ({ taskType, selectedExample, selectExample }:
 
   return (
     <Select value={example} onValueChange={handleExampleSelection}>
-      <SelectTrigger className='h-auto w-[240px] border-border-input px-4 py-2'>
+      <SelectTrigger className='h-auto w-full sm:w-[240px] border-border-input px-4 py-2'>
         <SelectValue placeholder='Select an example'/>
       </SelectTrigger>
       <SelectContent>
