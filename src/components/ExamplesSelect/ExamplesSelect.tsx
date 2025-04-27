@@ -1,7 +1,8 @@
 import { TaskTypeEnum } from "@/constants/taskTypes";
 import { useGetTaskExamples } from "@/hooks/useGetTaskExamples";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 type TaskExamplesSelectProps = {
   taskType: TaskTypeEnum;
@@ -10,8 +11,13 @@ type TaskExamplesSelectProps = {
 }
 
 export const TaskExamplesSelect = ({ taskType, selectedExample, selectExample }: TaskExamplesSelectProps) => {
-  const [example, setExample] = useState<string | undefined>(selectedExample);
+  const [example, setExample] = useState<string>();
   const { data: taskExamples } = useGetTaskExamples(taskType);
+  const exampleName = taskExamples?.find((taskExample) => taskExample.id === example);
+
+  useEffect(() => {
+    setExample(selectedExample);
+  }, [selectedExample]);
 
   const handleExampleSelection = (example: string) => {
     setExample(example);
@@ -20,10 +26,10 @@ export const TaskExamplesSelect = ({ taskType, selectedExample, selectExample }:
 
   return (
     <Select value={example} onValueChange={handleExampleSelection}>
-      <SelectTrigger className='h-auto w-full sm:w-[240px] border-border-input px-4 py-2'>
-        <SelectValue placeholder='Select an example'/>
+      <SelectTrigger className={cn('compare-step-2', 'h-auto w-full sm:w-[240px] border-border-input px-4 py-2')}>
+        <SelectValue children={!exampleName ? "Select an example" : exampleName.name} placeholder='Select an example'/>
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className={cn('compare-step-2')}>
         <SelectGroup>
           <SelectLabel>Examples</SelectLabel>
           {taskExamples?.map((taskExample) => (

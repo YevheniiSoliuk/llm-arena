@@ -16,7 +16,7 @@ const NavigationItem = ({ link }: NavigationItemProps) => {
 
   return (
     <NavigationMenuItem
-      className={`sm:max-xl:w-full group/item px-4 py-2 transition-all ${isActivePage ? "bg-foreground rounded-sm sm:rounded-none sm:bg-background sm:border-b-2 sm:border-foreground" : `cursor-pointer border-b-2 border-transparent hover:border-b-2 hover:border-foreground`}`}
+      className={`max-sm:w-full group/item px-4 py-2 transition-all ${isActivePage ? "bg-foreground rounded-sm sm:rounded-none sm:bg-background sm:border-b-2 sm:border-foreground" : `cursor-pointer border-b-2 border-transparent sm:hover:border-b-2 sm:hover:border-foreground`}`}
       onClick={() => navigate(link.to)}
     >
       <p className={`${isActivePage ? `cursor-default text-secondary sm:text-primary text-center` : `text-primary group-hover/item:text-primary text-center`}`}>
