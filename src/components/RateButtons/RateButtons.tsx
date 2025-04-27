@@ -1,6 +1,8 @@
 import { ArrowBigLeftIcon, ArrowBigRightIcon, CircleEqualIcon, ThumbsDownIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Decision } from "@/types";
+import { cn } from "@/lib/utils";
+import { useGuideStore } from "@/store/guide";
 
 type VoteButton = {
   text: string;
@@ -14,15 +16,23 @@ type RateButtonsProps = {
 };
 
 const RateButtons = ({ setIsVoted, setDecision }: RateButtonsProps) => {
-  const onRateButtonClick = (decision: Decision) => {
+  const setClickedRateButtonId = useGuideStore((state) => state.setClickedRateButtonId);
+
+  const onRateButtonClick = (decision: Decision, buttonId: string) => {
     setDecision(decision);
     setIsVoted(true);
+    setClickedRateButtonId(buttonId);
   };
 
   return (
-    <div className='flex flex-wrap sm:flex-nowrap w-full items-center justify-between gap-4'>
-      {buttons.map((button) => (
-        <Button key={button.text} className='my-1 sm:my-4 w-[47%] sm:w-full py-5' onClick={() => onRateButtonClick(button.value)}>
+    <div className={cn('compare-step-8', 'flex flex-wrap sm:flex-nowrap w-full items-center justify-between gap-4')}>
+      {buttons.map((button, index) => (
+        <Button
+          id={`rate-button-${index+1}`}
+          key={button.text}
+          className='my-1 sm:my-4 w-[47%] sm:w-full py-5'
+          onClick={() => onRateButtonClick(button.value, `rate-button-${index+1}`)}
+        >
           {button.icon} {button.text}
         </Button>
       ))}

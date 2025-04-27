@@ -1,4 +1,5 @@
 import { TaskTypeEnum } from "@/constants/taskTypes";
+import { PopoverContentProps, TourProps } from "@reactour/tour";
 
 export type BaseModel = {
   id: string;
@@ -134,3 +135,7 @@ export type TaskExample = {
   taskType: TaskTypeEnum;
   content: Content;
 };
+
+export type BtnFnProps = Parameters<NonNullable<TourProps["nextButton"]>>[0];
+
+export type ClickProps = Parameters<NonNullable<PopoverContentProps['onClickClose']>>[0];

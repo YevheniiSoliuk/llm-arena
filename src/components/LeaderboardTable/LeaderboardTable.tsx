@@ -10,6 +10,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { TaskTypeEnum } from "@/constants/taskTypes";
 import Loading from "../common/Loading";
+import { cn } from "@/lib/utils";
 
 type LeaderboardTableProps = {
   taskType?: TaskTypeEnum;
@@ -29,13 +30,13 @@ const LeaderboardTable = ({ taskType }: LeaderboardTableProps) => {
     columns.push(
       columnHelper.accessor("name", {
         id: "name",
-        cell: (props) => props.getValue(),
-        header: "Name",
+        cell: (props) => props.getValue().split('/').pop(),
+        header: "Model Name",
       }),
       columnHelper.accessor("producent", {
         id: "producent",
         cell: (props) => props.getValue(),
-        header: "Producent",
+        header: "Creator",
       }),
       columnHelper.accessor("score", {
         id: "score",
@@ -48,12 +49,12 @@ const LeaderboardTable = ({ taskType }: LeaderboardTableProps) => {
       columnHelper.accessor("name", {
         id: "name",
         cell: (props) => props.getValue(),
-        header: "Name",
+        header: "Model Name",
       }),
       columnHelper.accessor("producent", {
         id: "producent",
         cell: (props) => props.getValue(),
-        header: "Producent",
+        header: "Creator",
       }),
       columnHelper.accessor("totalScore", {
         id: "totalScore",
@@ -72,9 +73,9 @@ const LeaderboardTable = ({ taskType }: LeaderboardTableProps) => {
   });
 
   return (
-    <div className='w-full p-2'>
+    <div className='w-full py-2'>
       <Table>
-        <TableHeader className='bg-primary'>
+        <TableHeader className={cn('leaderboard-second-step', 'bg-primary')}>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
