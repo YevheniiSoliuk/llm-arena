@@ -1,25 +1,36 @@
 import { Outlet } from "react-router-dom";
-import Header from "../Header/Header";
 import { useAuth0 } from "@auth0/auth0-react";
-import { BottomTabNav } from "../BottomTabNav";
+import { useEffect } from "react";
+import Loading from "./Loading";
 
 const ProtectedLayout = () => {
-  const { isAuthenticated, loginWithRedirect } = useAuth0();
+  const { isAuthenticated, loginWithRedirect, isLoading, getAccessTokenSilently } = useAuth0();
 
-  if (!isAuthenticated) {
-    loginWithRedirect();
-    return;
+  useEffect(() => {
+    const checkAndRefreshToken = async () => {
+      if (!isLoading && !isAuthenticated) {
+        try {
+          await getAccessTokenSilently({ cacheMode: 'off' });
+        } catch (err) {
+          loginWithRedirect({
+            appState: { returnTo: window.location.pathname }
+          });
+        }
+      }
+    };
+
+    checkAndRefreshToken();
+  }, [isLoading, isAuthenticated, getAccessTokenSilently, loginWithRedirect]);
+
+  if (isLoading) {
+    return <Loading />;
   }
 
-  return (
-    <div className='w-full min-h-screen dark:bg-background'>
-      <Header />
-      <div className='w-full min-h-screen pt-[60px] pb-[80px] sm:pb-0'>
-        <Outlet />
-      </div>
-      <BottomTabNav />
-    </div>
-  );
+  if (isAuthenticated) {
+    return <Outlet />;
+  }
+
+  return <div className="flex justify-center items-center h-screen">Redirecting to login...</div>;
 };
 
 export default ProtectedLayout;

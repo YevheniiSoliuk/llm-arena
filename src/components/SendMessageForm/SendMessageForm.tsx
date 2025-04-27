@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SendHorizontalIcon } from "lucide-react";
-import { UseFormReturn } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import useTask from "@/hooks/useTask";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -12,12 +12,10 @@ import { Model } from "@/types";
 import { TaskTypeEnum } from "../../constants/taskTypes";
 import { showNotification } from "@/utils/showNotification";
 import { FormType } from "./config";
+import { cn } from "@/lib/utils";
+import { useTour } from "@reactour/tour";
 
 type SendMessageFormProps = {
-  form: UseFormReturn<{
-    message: string;
-    context?: string | undefined;
-  }, unknown, undefined>;
   models: Model[];
   selectedTask: TaskTypeEnum;
   selectedExample?: string;
@@ -26,11 +24,21 @@ type SendMessageFormProps = {
 
 type ChatType = 1 | 2;
 
-const SendMessageForm = ({ form, models, selectedTask, selectedExample, isVoted }: SendMessageFormProps) => {
+const SendMessageForm = ({ models, selectedTask, selectedExample, isVoted }: SendMessageFormProps) => {
+  const sendButtonRef = useRef<HTMLButtonElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { isOpen } = useTour();
   const { getModelAnswer, isFetching } = useTask();
   const addMessage = useChatsStore((state) => state.addMessage);
   const example = useTaskExamplesStore((state) => state.getExampleById(selectedExample));
+  const form = useFormContext<FormType>();
+
+  useEffect(() => {
+    form.setValue("message", form.getValues("message") || "");
+    if (selectedTask === TaskTypeEnum.Question_Answering) {
+      form.setValue("context", form.getValues("context") || "");
+    }
+  }, [form, selectedTask]);
 
   useEffect(() => {
     if (!example) return;
@@ -67,9 +75,15 @@ const SendMessageForm = ({ form, models, selectedTask, selectedExample, isVoted 
     }
   };
 
+  const handleSendButtonClick = () => {
+    if (isOpen && sendButtonRef.current) {
+      sendButtonRef.current.dataset.clickedInTour = "true";
+    }
+  }
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='my-4'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className={cn('compare-step-4', 'my-4')}>
         {selectedTask === TaskTypeEnum.Question_Answering && (
           <FormField
             control={form.control}
@@ -82,6 +96,7 @@ const SendMessageForm = ({ form, models, selectedTask, selectedExample, isVoted 
                     placeholder="Place your question context here!"
                     className='border-border-input mb-4'
                     {...field}
+                    value={field.value || ""}
                   />
                 </FormControl>
                 <FormMessage className='text-left text-red-600' />
@@ -97,8 +112,20 @@ const SendMessageForm = ({ form, models, selectedTask, selectedExample, isVoted 
             <FormItem className='w-full'>
               <FormControl>
                 <div className='flex items-center gap-8'>
-                  <Input className='border-border-input' placeholder='Type your question here!' {...field} />
-                  <Button type='submit' disabled={isVoted || isFetching || isLoading}>
+                  <Input
+                    className='border-border-input'
+                    placeholder='Type your question here!'
+                    {...field}
+                    value={field.value || ""}
+                  />
+                  <Button
+                    ref={sendButtonRef}
+                    id="send-button"
+                    className={"compare-step-5"}
+                    type='submit'
+                    disabled={isVoted || isFetching || isLoading}
+                    onClick={handleSendButtonClick}
+                  >
                     <SendHorizontalIcon />
                   </Button>
                 </div>

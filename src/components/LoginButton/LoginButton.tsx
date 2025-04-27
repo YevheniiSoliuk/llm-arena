@@ -5,7 +5,12 @@ export const LoginButton = () => {
   const { loginWithRedirect } = useAuth0();
 
   return (
-    <Button className='py-5' onClick={() => loginWithRedirect()}>
+    <Button
+      className={'py-5'}
+      onClick={() => loginWithRedirect({
+        appState: { returnTo: window.location.pathname }
+      })}
+    >
       Log In
     </Button>
   );

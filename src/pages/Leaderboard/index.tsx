@@ -1,3 +1,2 @@
-import Leaderboard from "./Leaderboard";
-
-export default Leaderboard;
+/* eslint-disable react-refresh/only-export-components */
+export * from "./Leaderboard";

@@ -1,8 +1,15 @@
 import LeaderboardTable from "@/components/LeaderboardTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TaskTypeEnum } from "@/constants/taskTypes";
+import { cn } from '@/lib/utils';
+import { Guide } from '@/components/Guide';
+import { useTour } from "@reactour/tour";
+import { leaderboardSteps } from "@/constants/tourSteps";
+import { useEffect } from "react";
 
-const Leaderboard = () => {
+export const Leaderboard = () => {
+  const { setSteps, setCurrentStep } = useTour();
+
   const tabs = [
     {
       label: "General",
@@ -16,10 +23,18 @@ const Leaderboard = () => {
     })),
   ];
 
+  useEffect(() => {
+    const guideStepFromLs = localStorage.getItem("leaderboard-guide-step");
+    const step = guideStepFromLs ? JSON.parse(guideStepFromLs) : 0;
+    setSteps?.(leaderboardSteps);
+    setCurrentStep(step);
+  }, [])
+
   return (
-    <div className='mt-16 w-full px-4'>
+    <div className='mt-5 w-full px-4'>
+      <Guide />
       <Tabs defaultValue={tabs[0].value} className='flex w-full flex-col items-start'>
-        <TabsList className='justify-start gap-2 overflow-x-auto overflow-y-clip max-w-full scrollbar-hide'>
+        <TabsList className={cn('leaderboard-first-step', 'h-full justify-start flex-wrap gap-2 overflow-y-auto max-w-full scrollbar-hide')}>
           {tabs.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value}>
               {tab.label}
@@ -35,5 +50,3 @@ const Leaderboard = () => {
     </div>
   );
 };
-
-export default Leaderboard;
